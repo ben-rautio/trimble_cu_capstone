@@ -4,8 +4,8 @@ import numpy as np
 def gstreamer_pipeline(
     capture_width=3264,
     capture_height=2464,
-    display_width=3264,
-    display_height=2464,
+    display_width=1080,
+    display_height=720,
     framerate=21,
     flip_method=2,
 ):
@@ -55,7 +55,7 @@ def show_camera():
         #         # cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
         #         # cv2.circle(image_copy, (cX, cY), 5, (255, 255, 255), -1)
         #         cv2.putText(img, "centroid", (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        #     cv2.imshow('CSI Camera', img)
+            cv2.imshow('CSI Camera', img)
         #     #print("before imshow")
         #     #cv2.waitKey(3000)
         #     #print("after imshow")
