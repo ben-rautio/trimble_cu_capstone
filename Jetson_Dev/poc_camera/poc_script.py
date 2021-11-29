@@ -22,7 +22,7 @@ def gstreamer_pipeline(
         "format=NV12, width=(int)%d, height=(int)%d, "
         "framerate=(fraction)%d/1 ! "
         "nvvidconv flip-method=%d ! "
-        "video/x-raw, format=NV12 ! appsink"
+        "video/x-raw, format=GRAY8 ! appsink"
         % (
             capture_width,
             capture_height,
@@ -35,18 +35,25 @@ def show_camera():
     # To flip the image, modify the flip_method parameter (0 and 2 are the most common)
     print(gstreamer_pipeline(flip_method=2))
     cap = cv2.VideoCapture(gstreamer_pipeline(flip_method=2), cv2.CAP_GSTREAMER)
+    window_handle = cv2.namedWindow("CSI Camera", cv2.WINDOW_AUTOSIZE)
     while cap.isOpened():
         ret_val, img = cap.read()
+        #slice out the UV channels
+        #img = img[:2464, :]
         #SHOULD WE HAVE BLUR OR NO? DO BEFORE OR AFTER THRESHOLDING?
-        #blur = cv2.GaussianBlur(img,(5,5),0)
+        blur = cv2.GaussianBlur(img,(5,5),0)
         if ret_val:
             #CONSIDER DOING THIS IN THE PIPELINE OR DELETE SINCE JUST HAVING INTENSITY WITH NV12
-            img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            ret, thresh = cv2.threshold(img_gray, 250, 255, cv2.THRESH_BINARY)
+            #Do we even need to grayscale if using nv12 image?
+            #img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            # print("SHAPE: " + str(img.shape))
+            # print("DTYPE: " + str(img.dtype))
+            # print("MAX: " + str(img.max()))
+            ret, thresh = cv2.threshold(blur, 200, 255, cv2.THRESH_BINARY)
             #currently uses 7x7 erosion kernel with 2 iterations
-            thresh = cv2.erode(thresh, np.ones((7,7), np.uint8), iterations=2)
+            thresh = cv2.erode(thresh, np.ones((7,7), np.uint8), iterations=3)
             contours, hierarchy = cv2.findContours(image=thresh, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
-            print(len(contours))
+            print("Contours: " + str(len(contours)))
             for c in contours:
                 #calculate moments for each contour
                 M = cv2.moments(c)
@@ -54,15 +61,16 @@ def show_camera():
                     cX = int(M["m10"] / M["m00"])
                     cY = int(M["m01"] / M["m00"])
                     print("Centroid: %d, %d" % (cX, cY))
+                    #print("Y: " + str(img[cY,cX]))
                 else:
                     cX, cY = 0, 0
 
-            cv2.drawContours(image=img, contours=contours, contourIdx=-1, color=(255, 0, 0), thickness=5, lineType=cv2.LINE_AA)
+            cv2.drawContours(image=thresh, contours=contours, contourIdx=-1, color=(255, 0, 0), thickness=10, lineType=cv2.LINE_AA)
             keyCode = cv2.waitKey(30) & 0xFF
-            #Stop the program on the ESC key
             if keyCode == 27:
-                cv2.imwrite('poc.jpg', img)
+                cv2.imwrite('poc_gray8_232.jpg', thresh)
                 break
+    cv2.destroyAllWindows()
     cap.release()
 
 

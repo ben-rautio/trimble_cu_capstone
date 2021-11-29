@@ -1,0 +1,25 @@
+11/29/21
+
+Try just using nv12 image in cv without grayscaling. Will this work with thresholding?
+Results:
+Thresholding values are completely different, 250 isn't creating any contours. Trying to save the image to see whats going on 
+This failed, ill create a  window so that when i hit escape it will exit and save one single image the correct way...
+Created a window, that will work now.
+
+Something weird with the nv12 images is that when i view it with eog, there are sort of 2 images on top of eachother, idk why...
+The thresholded image looks normal but now the regular threshold values don't really work. I have to use lower ones like 230. BUT 
+I didn't have to grayscale the image because I think i am just using the intensity channel but i will double check with the shape function...
+Above seems to be correct: gray image is just: img_display = img[:2464,:]. The last half of the original is just the UV channels which we don't care about!
+
+This new method of slicing works fine. But am still getting a lot of noise from nearby lights. I will try more iterations of erosion and gaussian blur
+Also: for some reason the contours aren't showing up in the saved images. Figure this out!!!!
+
+Threshold for the LED seems to be around 232. at 240 everything is thresholded out, resulting in just a black binary image with no contours
+I will see if this is the same with moving the LED much closer, to where it should obviously be the brightest thing in the frame
+This worked, now i will try increasing the thresh value from 232 to 240
+This resulted in no contrours, why? Maybe try printing out intensity of the 232 thresh image?
+For some reason on the NV12 image intensity can only go up to 234
+
+I will see if this is the same if i convert to gray8 format in the pipeline...
+same thing, maximum of 234 for some reason. Why????
+using the max() function on the image, i can see i am only getting a maximum of 235! Why??
