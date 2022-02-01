@@ -1,3 +1,4 @@
+#include <AsyncTCP.h>
 /*
   Rui Santos
   Complete project details at https://RandomNerdTutorials.com/esp32-client-server-wi-fi/
@@ -20,18 +21,6 @@ const char* password = "123456789";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-String readTemp() {
-  return "temp";
-}
-
-String readHumi() {
-  return "humid";
-}
-
-String readPres() {
-  return "press";
-}
-
 void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
@@ -45,28 +34,39 @@ void setup(){
   IPAddress IP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(IP);
-
-  pinMode(13, OUTPUT);
-  server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", readTemp().c_str());
-  });
-  server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", readHumi().c_str());
-  });
-  server.on("/pressure", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", readPres().c_str());
-  });
+  
   server.on("/bork", HTTP_GET, [](AsyncWebServerRequest *request) {
     Serial.println("Bork request");
     request->send_P(200, "text/plain", "Hi bork!");
-    digitalWrite(13, HIGH);
-    delay(1000);
-    digitalWrite(13, LOW);
   });
   
+  server.on("/change", HTTP_GET, [](AsyncWebServerRequest *request) {
+    String out = "Sam is a big stinky butt!\n\n";
+    int params = request->params();
+    for(int i=0;i<params;i++){
+      AsyncWebParameter *p = request->getParam(i);
+      Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      out = out + p->name().c_str() + ": " + p->value().c_str() + "\n";
+   }
+   request->send_P(200, "text/plain", out.c_str());
+   });
+
+   server.on("/POST", HTTP_GET, [](AsyncWebServerRequest *request) {
+      String out = "POST routine page\n\n";
+      int params = request->params();
+      for(int i=0; i < params; i++){
+        AsyncWebParameter *p = request->getParam(i);
+        Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+        out = out + p->name().c_str() + ": " + p->value().c_str() + "\n";
+      }
+      request->send_P(200, "text/plain", out.c_str());
+   });
+
   // Start server
   server.begin();
 }
+
+
  
 void loop(){
   
