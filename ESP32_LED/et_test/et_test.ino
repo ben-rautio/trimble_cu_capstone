@@ -15,7 +15,7 @@
 const char* ssid = "ESP32-Access-Point";
 const char* password = "123456789";
 
-const char base = "http://192.168.4.1/"
+const char* base = "http://192.168.4.1/";
 
 void setup() {
   // put your setup code here, to run once:
