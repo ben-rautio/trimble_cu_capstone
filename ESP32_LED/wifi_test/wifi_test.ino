@@ -39,6 +39,14 @@ void setup(){
     Serial.println("Bork request");
     request->send_P(200, "text/plain", "Hi bork!");
   });
+
+  server.on("/change", HTTP_GET, [](AsyncWebServerRequest *request) {
+    int params = request->params();
+    for(int i=0;i<params;i++){
+      AsyncWebParameter* p = request->getParam(i);
+      Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+  }
+  });
   
   server.on("/change", HTTP_GET, [](AsyncWebServerRequest *request) {
     String out = "Sam is a big stinky butt!\n\n";
