@@ -1,0 +1,229 @@
+
+#include <Arduino.h>
+#include <SerialTransfer.h>
+#include <stdint.h>
+
+//https://github.com/merose/AnalogScanner.git
+#include <AnalogScanner.h>
+
+//https://github.com/SofaPirate/Chrono.git
+#include <Chrono.h>
+
+//Only include our interface messages
+#include "firmware_msgs/power_mgmt.h"
+#define STATUS_PUB_INTERVAL 100
+#define LED_PIN 13
+/*
+TODO:
+Ask about default power state
+Need to create outbound status message 
+Need to fix analogread problem
+*/
+
+/*
+some pin mappings for reference...
+VBAT3_DIV             PC0 -> 14/A0
+VBAT2_DIV             PC1 -> 15/A1
+VBAT1_DIV             PC2 -> 16/A2
+VBAT0_DIV             PC3 -> 17/A3
+
+curmon_enable         PB0 ->  8
+VBAT_CURRENT          PE2 -> 25/A6
+
+Vshore_Div            PD7 ->  7
+
+SHORE_ENABLE          PB1 ->  9
+VBat_Ctl              PE0 -> 23
+*/
+
+//pins
+int vbat0_div = 17;
+int vbat1_div = 16;
+int vbat2_div = 15;
+int vbat3_div = 14;
+
+//Requires jumper to push VShore into the voltage divider for VLogic (as-built won't work, PD6/PD7 aren't analog inputs, they're a comparator)
+int vshore_div = 26;
+
+int curmon_enable = 8;
+int vbat_current = 25;
+
+int VBAT_CTL = 23;
+int SHORE_ENABLE = 9;
+
+
+//int scanOrder[] = {A3, A2, A1, A0, A6, A7};
+int scanOrder[] = {vbat0_div, vbat1_div, vbat2_div, vshore_div, vbat_current};
+
+//int scanOrder[] = {A3};
+//VBat0 - VBat3, VShore, VBat_Current
+
+//use SerialTransfer UART Protocol for Tx/Rx
+SerialTransfer st;
+//AnalogScanner scanner;
+Chrono statusTimer; 
+Chrono heartbeatTimer;
+
+
+const int SCAN_COUNT = sizeof(scanOrder) / sizeof(scanOrder[0]);
+pwr_cmd_t pwr_command;
+
+//based off of what I saw in servo_control firmware
+void handle_command(pwr_cmd_t &msg){
+  
+  switch(msg.cmd){
+    
+    case(pwr_cmd::CMD_CHANGE_BAT):
+      change_battery();
+      break;
+    
+    case(pwr_cmd::CMD_CHANGE_SHORE):
+      change_shore();
+      break;
+    case (pwr_cmd::CMD_HEARTBEAT):
+      Serial.println("Heartbeat!");
+      heartbeatTimer.restart(); //we have a host connected, allow shore to persist
+      break;
+    default:
+      Serial.println("Unrecognized command");
+  }
+}
+
+//Change to battery power
+void change_battery() {
+  Serial.println("Changing to battery");
+ digitalWrite(SHORE_ENABLE, HIGH);
+}
+
+//Do I need to check "enabled" in the struct?
+//Change to shore power
+
+void change_shore(){
+  Serial.println("Changing to shore");
+  digitalWrite(SHORE_ENABLE, LOW);//shore enable
+ }
+
+void logStatus(pwr_remote_cmd_t &status)
+{
+  Serial.print("B[0]:");
+  Serial.print(status.status.vbat0);
+  Serial.print(" B[1]:");
+  Serial.print(status.status.vbat1);
+  Serial.print(" B[2]:");
+  Serial.print(status.status.vbat2);
+  Serial.print(" B[3]:");
+  Serial.print(status.status.vbat3);
+  Serial.print(" Shore:");
+  Serial.print(status.status.vshore);
+  Serial.print(" Current:");
+  Serial.print(status.status.current);
+  Serial.print(" Src:");
+  Serial.print(status.status.active_src);
+  Serial.println("");  
+}
+
+
+void setup() {
+  //Ask what default state of active_src should be
+  Serial.begin(9600);
+  Serial1.begin(9600);
+  pinMode(LED_PIN, OUTPUT);
+  
+  st.begin(Serial1);
+
+  //Start the measurement process
+  //scanner.setScanOrder(SCAN_COUNT, scanOrder);
+  //scanner.setAnalogReference(DEFAULT);
+  //scanner.beginScanning();
+
+  pinMode(curmon_enable,  OUTPUT);
+  pinMode(SHORE_ENABLE,  OUTPUT);
+
+  change_battery();
+  
+  pinMode(VBAT_CTL, INPUT);
+
+  //Enable the current monitor: 
+  digitalWrite(curmon_enable, HIGH);
+
+  statusTimer.restart(); //enable status publishing
+  heartbeatTimer.restart(); //start the heartbeat
+}
+
+bool ledState = false;
+void blinkLED()
+{
+  if (ledState)
+    digitalWrite(LED_PIN, HIGH);
+  else
+    digitalWrite(LED_PIN, LOW);
+  
+  ledState = !ledState;
+}
+
+void loop() {
+    pwr_cmd_t inbound;
+    pwr_remote_cmd_t status;
+    uint16_t totalSize = 0;
+    
+    status.cmd = pwr_remote_cmd::CMD_PUSHSTATUS;
+    
+    //check if we receive any commands...
+    if(st.available()){
+      //Serial.println("Got command!");
+      uint16_t recSize = 0;
+      recSize = st.rxObj(inbound, sizeof(pwr_cmd_t));
+      handle_command(inbound);
+    }
+
+    /*
+    if (Serial.available())
+    {
+      Serial.print("Got input:");
+      Serial.println(Serial.read());  
+    
+    }
+    */
+    //Heartbeat gets published at 10Hz - don't jump the gun
+    if (heartbeatTimer.hasPassed(STATUS_PUB_INTERVAL*10) && heartbeatTimer.isRunning())
+    {
+      //If we haven't established comm with the base controller, switch to battery power
+      //This is a one-shot - if a host shows up, the heartbeat will be reset as a published command
+      change_battery();
+      heartbeatTimer.stop();
+    }
+    
+    if (statusTimer.hasPassed(STATUS_PUB_INTERVAL))
+    {
+        //Send an update
+        //int scanorder[] = {A3, A2, A1, A0, A7, A6};
+        memset(&status.status, 0, sizeof(status.status));
+        status.status.vbat0 = analogRead(vbat0_div); //scanner.getValue(0);
+        status.status.vbat1 = analogRead(vbat1_div);//scanner.getValue(1);
+        status.status.vbat2 = analogRead(vbat2_div);//scanner.getValue(2);
+        status.status.vbat3 = analogRead(vbat3_div);//scanner.getValue(3);
+        status.status.vshore = analogRead(vshore_div);//scanner.getValue(4);
+        status.status.current = analogRead(vbat_current);//scanner.getValue(5);b
+        status.status.active_src = digitalRead(VBAT_CTL); //high = battery, low = shore
+
+
+        totalSize = st.txObj(status, sizeof(status), 0);
+        st.sendData(totalSize);
+
+        //Log to the serial monitor as a backup:
+        logStatus(status);
+
+        //Reset the timer for next time
+        statusTimer.restart();
+
+        blinkLED();
+
+        /*
+        if (ledState)
+          change_shore();
+        else
+          change_battery();
+        */
+  }
+
+}
