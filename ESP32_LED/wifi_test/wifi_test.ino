@@ -70,6 +70,10 @@ void setup(){
       request->send_P(200, "text/plain", out.c_str());
    });
 
+//   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+//    
+//   }
+
   // Start server
   server.begin();
 }
