@@ -33,8 +33,16 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  
+  // put your main code here, to run repeatedly:  
+  if(WiFi.status()== WL_CONNECTED ){ 
+    Serial.println(httpGETRequest(base));
+    delay(3000);
+    Serial.println(httpGETRequest("http://192.168.4.1/bork"));
+    delay(3000);
+    Serial.println(httpGETRequest("http://192.168.4.1/change?n0=0"));
+    delay(3000);
+  }
+
 }
 
 String httpGETRequest(const char* serverName) {

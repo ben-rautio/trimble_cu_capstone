@@ -34,18 +34,14 @@ void setup(){
   IPAddress IP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(IP);
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send_P(200, "text/plain", "Bio Break Ben");
+  });
   
   server.on("/bork", HTTP_GET, [](AsyncWebServerRequest *request) {
     Serial.println("Bork request");
     request->send_P(200, "text/plain", "Hi bork!");
-  });
-
-  server.on("/change", HTTP_GET, [](AsyncWebServerRequest *request) {
-    int params = request->params();
-    for(int i=0;i<params;i++){
-      AsyncWebParameter* p = request->getParam(i);
-      Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
-  }
   });
   
   server.on("/change", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -57,22 +53,7 @@ void setup(){
       out = out + p->name().c_str() + ": " + p->value().c_str() + "\n";
    }
    request->send_P(200, "text/plain", out.c_str());
-   });
-
-   server.on("/POST", HTTP_GET, [](AsyncWebServerRequest *request) {
-      String out = "POST routine page\n\n";
-      int params = request->params();
-      for(int i=0; i < params; i++){
-        AsyncWebParameter *p = request->getParam(i);
-        Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
-        out = out + p->name().c_str() + ": " + p->value().c_str() + "\n";
-      }
-      request->send_P(200, "text/plain", out.c_str());
-   });
-
-//   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-//    
-//   }
+  });
 
   // Start server
   server.begin();
