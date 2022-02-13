@@ -3,6 +3,13 @@ import os
 
 # Note: give the script sufficient permissions to write the images to your directory of choice
 # EX: sudo chmod calibration_script.py 777
+# try adding in openCV's checkerboard detection overlaid on the live feed
+
+#set to true if want to show overlay of detected checkerboard or not
+DETECT_CHECKERBOARD = True
+CHECKERBOARD_SIZE = (8,10)
+#terminating criteria for iterative algorithms
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 def gstreamer_pipeline(
     capture_width=3264,
@@ -36,7 +43,17 @@ def show_camera():
     window_handle = cv2.namedWindow("CSI Camera", cv2.WINDOW_NORMAL)
     while cap.isOpened():
         ret_val, img = cap.read()
-        cv2.imshow("CSI Camera", img)
+        if DETECT_CHECKERBOARD:
+            retval, corners = cv2.findChessboardCorners(img, CHECKERBOARD_SIZE, None)
+            if retval:
+                # points3d = []
+                # points2d = []
+                corners2 = cv2.cornerSubPix(img, corners, (11,11), criteria)
+
+                #draw & display corners
+                cv2.drawChessboardCorners(img, CHECKERBOARD_SIZE, corners2, retval)
+            else:
+                print("NO CHECKERBOARD DETECTED")
         if ret_val:
             keyCode = cv2.waitKey(30) & 0xFF
             if keyCode == 27:
