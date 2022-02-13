@@ -54,7 +54,7 @@ void loop(){
    Serial.println(ben + Bork);
 }
 
-void getDuty(const char* serverName){
+String getDuty(const char* serverName){
   WiFiClient client;
   HTTPClient http;
   http.begin(client, serverName);
