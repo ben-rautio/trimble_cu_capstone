@@ -63,6 +63,7 @@ def show_camera():
                 print("saving image: " + os.path.join(path , 'imx219_calib_'+str(pic_num)+'.jpg'))
                 if not cv2.imwrite(os.path.join(path , 'imx219_calib_'+str(pic_num)+'.jpg'), img):
                     print("failed to save img")
+                cv2.imshow("CSI Camera", img)
                 pic_num+=1
     cv2.destroyAllWindows()
     cap.release()
