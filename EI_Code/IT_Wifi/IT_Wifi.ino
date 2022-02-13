@@ -23,10 +23,12 @@ const char* ssid = "ESP32-Access-Point";
 const char* password = "123456789";
 
 // Different servers
-const char* serverStatus = "192.168.4.1/status";
-const char* serverChange = "192.168.4.1/change";
-const char* serverBork = "192.168.4.1/bork";
-const char* serverBen = "192.169.4.1/";
+const char* serverStatus = "http://192.168.4.1/status";
+const char* serverChange10 = "http://192.168.4.1/change?dc=10";
+const char* serverChange50 = "http://192.168.4.1/change?dc=50";
+const char* serverChange100 = "http://192.168.4.1/change?dc=100";
+const char* serverBork = "http://192.168.4.1/bork";
+const char* serverBen = "http://192.169.4.1/";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -44,20 +46,27 @@ void setup(){
   Serial.println(WiFi.localIP());
 }
 
-String ben;
 String Bork;
+String dutyCycle;
 
 void loop(){
-   delay(5000);
-   ben = getDuty(serverBen);
-   Bork = getDuty(serverBork);
-   Serial.println(ben + Bork);
+//   delay(5000);
+//   dutyCycle = getDuty(serverChange);
+//   Bork = getDuty(serverBork);
+//   Serial.println(dutyCycle);
+//   Serial.println(Bork);
+  dutyCycle = getDuty(serverChange10).toInt();
+  delay(5000);
+  dutyCycle = getDuty(serverChange50).toInt();
+  delay(5000);
+  dutyCycle = getDuty(serverChange100).toInt();
+  delay(5000);
+
 }
 
 String getDuty(const char* serverName){
-  WiFiClient client;
   HTTPClient http;
-  http.begin(client, serverName);
+  http.begin(serverName);
   int httpResp = http.GET();
   String payload = "Not right";
   if(httpResp > 0){
@@ -73,6 +82,7 @@ String getDuty(const char* serverName){
   return payload;
 }
 
+//String getStatus(
 //void getBen(){
 //  WiFiClient client;
 //  HTTPClient http;
