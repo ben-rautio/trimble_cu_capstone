@@ -15,12 +15,18 @@
 
 // Import required libraries
 #include "WiFi.h"
+#include "HTTPClient.h"
 #include "ESPAsyncWebServer.h"
 
 // Set your access point network credentials
 const char* ssid = "ESP32-Access-Point";
 const char* password = "123456789";
 
+// Different servers
+const char* serverStatus = "192.168.4.1/status";
+const char* serverChange = "192.168.4.1/change";
+const char* serverBork = "192.168.4.1/bork";
+const char* serverBen = "192.169.4.1/";
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -28,42 +34,51 @@ void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
   Serial.println();
-  
-  // Setting the ESP as an access point
-  Serial.print("Setting AP (Access Point)…");
-  // Remove the password parameter, if you want the AP (Access Point) to be open
-  WiFi.softAP(ssid); //, password);
-
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
-
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send_P(200, "text/plain", "Bio Break Ben");
-  });
-  
-  server.on("/bork", HTTP_GET, [](AsyncWebServerRequest *request) {
-    Serial.println("Bork request");
-    request->send_P(200, "text/plain", "Hi bork!");
-  });
-  
-  server.on("/change", HTTP_GET, [](AsyncWebServerRequest *request) {
-    String out = "Sam is a big stinky butt!\n\n";
-    int params = request->params();
-    for(int i=0;i<params;i++){
-      AsyncWebParameter *p = request->getParam(i);
-      Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
-      out = out + p->name().c_str() + ": " + p->value().c_str() + "\n";
-   }
-   request->send_P(200, "text/plain", out.c_str());
-  });
-
-  // Start server
-  server.begin();
+  Serial.println("Connecting...");
+  WiFi.begin(ssid);
+  while(WiFi.status() != WL_CONNECTED){
+    delay(500);
+    Serial.print("REEEE");
+  }
+  Serial.print("Connected to WiFi network w/ IP: ");
+  Serial.println(WiFi.localIP());
 }
 
+String ben;
+String Bork;
 
- 
 void loop(){
-  
+   delay(5000);
+   ben = getDuty(serverBen);
+   Bork = getDuty(serverBork);
+   Serial.println(ben + Bork);
 }
+
+void getDuty(const char* serverName){
+  WiFiClient client;
+  HTTPClient http;
+  http.begin(client, serverName);
+  int httpResp = http.GET();
+  String payload = "Not right";
+  if(httpResp > 0){
+    Serial.print("HTTP Response: ");
+    Serial.println(httpResp);
+    payload = http.getString();
+  }
+  else{
+    Serial.print("Error code: ");
+    Serial.println(httpResp);
+  }
+  http.end();
+  return payload;
+}
+
+//void getBen(){
+//  WiFiClient client;
+//  HTTPClient http;
+//  http.begin(client, serverBen);
+//  Serial.print("Ben Request: ");
+////  Serial.println(http.getString());
+//  http.end();
+//  return;
+//}

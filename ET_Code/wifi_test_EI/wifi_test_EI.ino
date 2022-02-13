@@ -39,6 +39,7 @@ void setup(){
   Serial.println(IP);
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    Serial.println("Ben Request");
     request->send_P(200, "text/plain", "Bio Break Ben");
   });
   
