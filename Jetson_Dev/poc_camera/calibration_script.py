@@ -18,7 +18,7 @@ def gstreamer_pipeline(
         "nvvidconv flip-method=%d ! "
         "video/x-raw, format=(string)BGRx ! "
         "videoconvert ! "
-        "video/x-raw, format=(string)BGR ! appsink"
+        "video/x-raw, format=GRAY8 ! appsink"
         % (
             capture_width,
             capture_height,
@@ -29,12 +29,14 @@ def gstreamer_pipeline(
 
 def show_camera():
     pic_num = 0
-    path = './calib_images'
+    #MAKE SURE TO GIVE SUDO PERMISSIONS
+    path = './calib_images_brightlight_fulldataset'
     print(gstreamer_pipeline(flip_method=2))
     cap = cv2.VideoCapture(gstreamer_pipeline(flip_method=2), cv2.CAP_GSTREAMER)
     window_handle = cv2.namedWindow("CSI Camera", cv2.WINDOW_NORMAL)
     while cap.isOpened():
         ret_val, img = cap.read()
+        cv2.imshow("CSI Camera", img)
         if ret_val:
             keyCode = cv2.waitKey(30) & 0xFF
             if keyCode == 27:
@@ -42,10 +44,8 @@ def show_camera():
                 break
             elif keyCode == 32:
                 print("saving image: " + os.path.join(path , 'imx219_calib_'+str(pic_num)+'.jpg'))
-                #cv2.imwrite(os.path.join(path , 'imx219_calib_'+str(pic_num)+'.jpg'), img)
                 if not cv2.imwrite(os.path.join(path , 'imx219_calib_'+str(pic_num)+'.jpg'), img):
                     print("failed to save img")
-                cv2.imshow("CSI Camera", img)
                 pic_num+=1
     cv2.destroyAllWindows()
     cap.release()

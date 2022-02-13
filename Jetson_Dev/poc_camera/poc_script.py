@@ -3,6 +3,8 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+# import PnP_Solver
+
 
 #Try these two pipelines: 
 # nvarguscamerasrc ! video/x-raw(memory:NVMM), format=NV12, width=1920, height=1080, framerate=30/1 ! nvvidconv ! video/x-raw, format=NV12 ! appsink
@@ -16,6 +18,7 @@ def gstreamer_pipeline(
     framerate=21,
     flip_method=2,
 ):
+
     return (
         "nvarguscamerasrc ! "
         "video/x-raw(memory:NVMM), "
@@ -60,17 +63,17 @@ def show_camera():
                 if M["m00"] != 0:
                     cX = int(M["m10"] / M["m00"])
                     cY = int(M["m01"] / M["m00"])
-                    print("Centroid: %d, %d" % (cX, cY))
+                    print("Centroid: X %d, Y %d" % (cX, cY))
                     #print("Y: " + str(img[cY,cX]))
                 else:
                     cX, cY = 0, 0
 
-            cv2.drawContours(image=thresh, contours=contours, contourIdx=-1, color=(255, 0, 0), thickness=10, lineType=cv2.LINE_AA)
-            keyCode = cv2.waitKey(30) & 0xFF
-            if keyCode == 27:
-                cv2.imwrite('poc_gray8_232.jpg', thresh)
-                break
-    cv2.destroyAllWindows()
+    #         cv2.drawContours(image=thresh, contours=contours, contourIdx=-1, color=(255, 0, 0), thickness=10, lineType=cv2.LINE_AA)
+    #         keyCode = cv2.waitKey(30) & 0xFF
+    #         if keyCode == 27:
+    #             cv2.imwrite('sd_test_44deg.jpg', thresh)
+    #             break
+    # cv2.destroyAllWindows()
     cap.release()
 
 
