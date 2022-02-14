@@ -10,6 +10,9 @@
   copies or substantial portions of the Software.
 */
 
+// 
+
+
 // Import required libraries
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
@@ -17,6 +20,8 @@
 // Set your access point network credentials
 const char* ssid = "ESP32-Access-Point";
 const char* password = "123456789";
+int dutyCycle;
+int antiDC;
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -25,7 +30,8 @@ void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
   Serial.println();
-  
+  pinMode(1, OUTPUT);
+  dutyCycle = 0;
   // Setting the ESP as an access point
   Serial.print("Setting AP (Access Point)…");
   // Remove the password parameter, if you want the AP (Access Point) to be open
@@ -36,6 +42,7 @@ void setup(){
   Serial.println(IP);
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    Serial.println("Ben Request");
     request->send_P(200, "text/plain", "Bio Break Ben");
   });
   
@@ -49,10 +56,12 @@ void setup(){
     int params = request->params();
     for(int i=0;i<params;i++){
       AsyncWebParameter *p = request->getParam(i);
-      Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+//      Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
       out = out + p->name().c_str() + ": " + p->value().c_str() + "\n";
+      dutyCycle = p->value().toInt();
+      Serial.println(dutyCycle);
+      request->send_P(200, "text/plain", out.c_str());
    }
-   request->send_P(200, "text/plain", out.c_str());
   });
 
   // Start server
@@ -62,5 +71,11 @@ void setup(){
 
  
 void loop(){
+  digitalWrite(1, HIGH);
+  delay(5);
+  digitalWrite(1, LOW);
+  antiDC = (1 - (dutyCycle/100));
+  delay(5);
+
   
 }
