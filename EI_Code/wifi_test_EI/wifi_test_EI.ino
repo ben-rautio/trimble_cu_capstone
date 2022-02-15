@@ -71,11 +71,70 @@ void setup(){
 
  
 void loop(){
-  digitalWrite(1, HIGH);
-  delay(5);
-  digitalWrite(1, LOW);
-  antiDC = (1 - (dutyCycle/100));
-  delay(5);
-
-  
+  switch(dutyCycle){
+    case 0:
+        digitalWrite(1, LOW);
+        break;
+    case 10:
+        digitalWrite(1, HIGH);
+        delay(1);
+        digitalWrite(1, LOW);
+        delay(9);
+        break;
+    case 20:
+        digitalWrite(1, HIGH);
+        delay(2);
+        digitalWrite(1, LOW);
+        delay(8);
+        break;
+    case 30:
+        digitalWrite(1, HIGH);
+        delay(3);
+        digitalWrite(1, LOW);
+        delay(7);
+        break;
+    case 40:
+        digitalWrite(1, HIGH);
+        delay(4);
+        digitalWrite(1, LOW);
+        delay(6);
+        break;
+    case 50:
+        digitalWrite(1, HIGH);
+        delay(5);
+        digitalWrite(1, LOW);
+        delay(5);
+        break;
+    case 60:
+        digitalWrite(1, HIGH);
+        delay(6);
+        digitalWrite(1, LOW);
+        delay(4);
+        break;
+    case 70:
+        digitalWrite(1, HIGH);
+        delay(7);
+        digitalWrite(1, LOW);
+        delay(3);
+        break;
+    case 80:
+        digitalWrite(1, HIGH);
+        delay(8);
+        digitalWrite(1, LOW);
+        delay(2);
+        break;
+    case 90:
+        digitalWrite(1, HIGH);
+        delay(9);
+        digitalWrite(1, LOW);
+        delay(1);
+        break;
+    case 100:
+        digitalWrite(1, HIGH);
+        break;
+    default: 
+        digitalWrite(1, LOW);
+        Serial.println(dutyCycle);
+        break;
+  }
 }
