@@ -24,9 +24,18 @@ const char* password = "123456789";
 
 // Different servers
 const char* serverStatus = "http://192.168.4.1/status";
+const char* serverChange0 = "http://192.168.4.1/change?dc=0";
 const char* serverChange10 = "http://192.168.4.1/change?dc=10";
+const char* serverChange20 = "http://192.168.4.1/change?dc=20";
+const char* serverChange30 = "http://192.168.4.1/change?dc=30";
+const char* serverChange40 = "http://192.168.4.1/change?dc=40";
 const char* serverChange50 = "http://192.168.4.1/change?dc=50";
+const char* serverChange60 = "http://192.168.4.1/change?dc=60";
+const char* serverChange70 = "http://192.168.4.1/change?dc=70";
+const char* serverChange80 = "http://192.168.4.1/change?dc=80";
+const char* serverChange90 = "http://192.168.4.1/change?dc=90";
 const char* serverChange100 = "http://192.168.4.1/change?dc=100";
+const char* serverChange110 = "http://192.168.4.1/change?dc=110";
 const char* serverBork = "http://192.168.4.1/bork";
 const char* serverBen = "http://192.169.4.1/";
 // Create AsyncWebServer object on port 80
@@ -55,13 +64,30 @@ void loop(){
 //   Bork = getDuty(serverBork);
 //   Serial.println(dutyCycle);
 //   Serial.println(Bork);
+  dutyCycle = getDuty(serverChange0).toInt();
+  delay(3000);
   dutyCycle = getDuty(serverChange10).toInt();
-  delay(5000);
+  delay(3000);
+  dutyCycle = getDuty(serverChange20).toInt();
+  delay(3000);
+  dutyCycle = getDuty(serverChange30).toInt();
+  delay(3000);
+  dutyCycle = getDuty(serverChange40).toInt();
+  delay(3000);
   dutyCycle = getDuty(serverChange50).toInt();
-  delay(5000);
+  delay(3000);
+  dutyCycle = getDuty(serverChange60).toInt();
+  delay(3000);
+  dutyCycle = getDuty(serverChange70).toInt();
+  delay(3000);
+  dutyCycle = getDuty(serverChange80).toInt();
+  delay(3000);
+  dutyCycle = getDuty(serverChange90).toInt();
+  delay(3000);
   dutyCycle = getDuty(serverChange100).toInt();
-  delay(5000);
-
+  delay(3000);
+  dutyCycle = getDuty(serverChange110).toInt();
+  delay(3000);
 }
 
 String getDuty(const char* serverName){
