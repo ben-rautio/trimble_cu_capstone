@@ -1,13 +1,14 @@
-from pynput.keyboard import Key, Listener
+#from pynput.keyboard import Key, Listener
 import os,sys
 import struct
 import pdb
 import time
-from pySerialTransfer import pySerialTransfer as txfer
+from pySerialTransfer.pySerialTransfer import pySerialTransfer as txfer
 
 UPLINK_BAUD = 115200
-# PORT = "/dev/ttyTHS1"
-PORT = "COM6"
+PORT = "/dev/ttyTHS1"
+#PORT = "/dev/ttyUSB0"
+#PORT = "COM6"
 
 #Need to add formats for the commands to send the ET
 

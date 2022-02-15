@@ -6,15 +6,18 @@ import os
 # try adding in openCV's checkerboard detection overlaid on the live feed
 
 #set to true if want to show overlay of detected checkerboard or not
-DETECT_CHECKERBOARD = True
-CHECKERBOARD_SIZE = (8,10)
+DETECT_CHECKERBOARD = False
+CHECKERBOARD_SIZE = (7,9)
+CAP_WIDTH = 3264
+CAP_HEIGHT = 2464
+FRAMERATE = 21
 #terminating criteria for iterative algorithms
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 def gstreamer_pipeline(
-    capture_width=3264,
-    capture_height=2464,
-    framerate=21,
+    capture_width=CAP_WIDTH,
+    capture_height=CAP_HEIGHT,
+    framerate=FRAMERATE,
     flip_method=2,
 ):
     return (
@@ -33,25 +36,29 @@ def gstreamer_pipeline(
             flip_method,
         )
     )
-
+21
 def show_camera():
     pic_num = 0
     #MAKE SURE TO GIVE SUDO PERMISSIONS
-    path = './calib_images_brightlight_fulldataset'
+    path = './outdoor_calib_2-13-22'
     print(gstreamer_pipeline(flip_method=2))
     cap = cv2.VideoCapture(gstreamer_pipeline(flip_method=2), cv2.CAP_GSTREAMER)
     window_handle = cv2.namedWindow("CSI Camera", cv2.WINDOW_NORMAL)
     while cap.isOpened():
         ret_val, img = cap.read()
         if DETECT_CHECKERBOARD:
-            retval, corners = cv2.findChessboardCorners(img, CHECKERBOARD_SIZE, None)
+            print("detect checkerboards")
+            retval, corners = cv2.findChessboardCorners(img, CHECKERBOARD_SIZE, flags = cv2.CALIB_CB_FAST_CHECK)
+            #retval, corners = cv2.findChessboardCorners(img, CHECKERBOARD_SIZE, None)
             if retval:
                 # points3d = []
                 # points2d = []
-                corners2 = cv2.cornerSubPix(img, corners, (11,11), criteria)
+                #print("subpix corners")
+                # corners2 = cv2.cornerSubPix(img, corners, (11,11), (-1,-1), criteria)
 
                 #draw & display corners
-                cv2.drawChessboardCorners(img, CHECKERBOARD_SIZE, corners2, retval)
+                print("draw checkerboard")
+                cv2.drawChessboardCorners(img, CHECKERBOARD_SIZE, corners, retval)
             else:
                 print("NO CHECKERBOARD DETECTED")
         if ret_val:
@@ -63,8 +70,8 @@ def show_camera():
                 print("saving image: " + os.path.join(path , 'imx219_calib_'+str(pic_num)+'.jpg'))
                 if not cv2.imwrite(os.path.join(path , 'imx219_calib_'+str(pic_num)+'.jpg'), img):
                     print("failed to save img")
-                cv2.imshow("CSI Camera", img)
                 pic_num+=1
+            cv2.imshow("CSI Camera", img)
     cv2.destroyAllWindows()
     cap.release()
 
