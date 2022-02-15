@@ -72,7 +72,7 @@ String getDuty(const char* serverName){
   if(httpResp > 0){
     Serial.print("HTTP Response: ");
     Serial.println(httpResp);
-    payload = http.getString();
+    payload = http.get String();
   }
   else{
     Serial.print("Error code: ");
