@@ -10,7 +10,7 @@ from pySerialTransfer.pySerialTransfer import pySerialTransfer as txfer
 
 UPLINK_BAUD = 115200
 PORT = "/dev/ttyTHS1"
-#PORT = "/dev/ttyUSB0"
+#PORT = "/dev/ttyUSB1"
 #PORT = "COM6"
 
 #Need to add formats for the commands to send the ET
@@ -43,7 +43,7 @@ def main():
             if user_input == " ":
                 cycle = (cycle + 10) % 110
                 print("Change Duty Cycle: {}".format(cycle))
-                changeBrightness(link, cycle)
+                # changeBrightness(link, cycle)
             elif user_input == "end":
                 break
             else: 
@@ -59,16 +59,17 @@ def main():
         link.close()
 
 def changeBrightness(link, cycle):
-    # txBuf = struct.pack(ET_CMD_FORMAT, 4, cycle)
-    # for index in range(len(txBuf)):
-    #     link.txBuff[index] = txBuf[index]
-    # link.send(len(txBuf))
-    pass
+    time.sleep(0.5)
+    send_size = 0
+    str_size = link.tx_obj(cycle)
+    send_size+=str_size
+    link.send(send_size)
+    time.sleep(0.5)
 
 def testTx(link):
     time.sleep(0.5)
     send_size = 0
-    str_ = "Hello from the Jetson Nano"
+    str_ = "Poopy"
     str_size = link.tx_obj(str_)
     send_size+=str_size
     link.send(send_size)
