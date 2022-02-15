@@ -1,4 +1,7 @@
 #from pynput.keyboard import Key, Listener
+
+# NOTE: NEED TO RUN THIS WITH SUDO!!!!
+
 import os,sys
 import struct
 import pdb
@@ -25,6 +28,8 @@ def main():
             #     if not link.available():
             #         time.sleep(0.1)
             #     else: break
+
+            testTx(link)
 
             if link.status < 0:
                 if link.status == -1:
@@ -59,6 +64,15 @@ def changeBrightness(link, cycle):
     #     link.txBuff[index] = txBuf[index]
     # link.send(len(txBuf))
     pass
+
+def testTx(link):
+    time.sleep(0.5)
+    send_size = 0
+    str_ = "Hello from the Jetson Nano"
+    str_size = link.tx_obj(str_)
+    send_size+=str_size
+    link.send(send_size)
+    time.sleep(0.5)
 
 if __name__ == '__main__':
     main()
