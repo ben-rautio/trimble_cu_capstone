@@ -9,11 +9,14 @@ import time
 from pySerialTransfer.pySerialTransfer import pySerialTransfer as txfer
 
 UPLINK_BAUD = 115200
-PORT = "/dev/ttyTHS1"
-#PORT = "/dev/ttyUSB1"
+# PORT = "/dev/ttyTHS1"
+PORT = "/dev/ttyUSB0"
 #PORT = "COM6"
 
 #Need to add formats for the commands to send the ET
+
+class struct(object):
+    z = 10
 
 def main():
     cycle = 0
@@ -21,6 +24,7 @@ def main():
         link = txfer.SerialTransfer(PORT, baud=UPLINK_BAUD)
         link.open()
         print('Opened port: {}'.format(PORT))
+        testStruct = struct
 
         while True:
             # Busy wait for msg
@@ -29,7 +33,7 @@ def main():
             #         time.sleep(0.1)
             #     else: break
 
-            testTx(link)
+            #testTx(link)
 
             if link.status < 0:
                 if link.status == -1:
@@ -43,7 +47,8 @@ def main():
             if user_input == " ":
                 cycle = (cycle + 10) % 110
                 print("Change Duty Cycle: {}".format(cycle))
-                # changeBrightness(link, cycle)
+                testStruct.z=cycle
+                changeBrightness(link, testStruct)
             elif user_input == "end":
                 break
             else: 
@@ -61,7 +66,7 @@ def main():
 def changeBrightness(link, cycle):
     time.sleep(0.5)
     send_size = 0
-    str_size = link.tx_obj(cycle)
+    str_size = link.tx_obj(cycle.z)
     send_size+=str_size
     link.send(send_size)
     time.sleep(0.5)
