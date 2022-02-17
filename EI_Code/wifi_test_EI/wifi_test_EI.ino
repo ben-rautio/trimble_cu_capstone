@@ -31,6 +31,9 @@ void setup(){
   Serial.begin(115200);
   Serial.println();
   pinMode(1, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
   dutyCycle = 0;
   // Setting the ESP as an access point
   Serial.print("Setting AP (Access Point)…");
@@ -74,66 +77,129 @@ void loop(){
   switch(dutyCycle){
     case 0:
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         break;
     case 10:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         delay(1);
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         delay(9);
         break;
     case 20:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         delay(2);
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         delay(8);
         break;
     case 30:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         delay(3);
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         delay(7);
         break;
     case 40:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         delay(4);
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         delay(6);
         break;
     case 50:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         delay(5);
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         delay(5);
         break;
     case 60:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         delay(6);
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         delay(4);
         break;
     case 70:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         delay(7);
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         delay(3);
         break;
     case 80:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         delay(8);
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         delay(2);
         break;
     case 90:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         delay(9);
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         delay(1);
         break;
     case 100:
         digitalWrite(1, HIGH);
+        digitalWrite(2, HIGH);
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
         break;
     default: 
         digitalWrite(1, LOW);
+        digitalWrite(2, LOW);
+        digitalWrite(3, LOW);
+        digitalWrite(4, LOW);
         Serial.println(dutyCycle);
         break;
   }
