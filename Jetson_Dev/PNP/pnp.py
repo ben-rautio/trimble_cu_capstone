@@ -9,6 +9,24 @@
 import cv2
 import numpy as np
 
+#FISHEYE = True
+FISHEYE = False
+SCALE_FACTOR = 1.0
+BALANCE = 1.0
+IMG_W = 3264
+IMG_H = 2464
+
+
+def getInKNewForFisheye(scaleFactor, imgW, imgH, balance, K, D):
+    imgDims = (int(scaleFactor*imgW), int(scaleFactor*imgH))
+    K_arr = np.asarray(K)
+    D_arr = np.asarray(D)
+    if scaleFactor != 1.0:
+        kOut = K_arr * scaleFactor
+        kOut[2,2] = 1.0
+    kNew = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(kOut, D_arr, imgDims, np.eye(3), balance=balance)
+    return kNew
+
 #we actually don't need this, SolvePNP undistorts points for us...
 #do i need to worry about translating deepen Params to 
 # acceptable openCV2 params?
@@ -19,6 +37,7 @@ import numpy as np
 # estimateNewCameraMatrixforUndistortRectify
 # for example: The undistorted image can be seen as taken by a 
 # camera with the new K from this function WITHOUT distortion
+
 def undistortPoints(points, inK, inD, inKNew):
     #convert intrinsic matrix to array
     K = np.asarray(inK)
@@ -32,11 +51,14 @@ def undistortPoints(points, inK, inD, inKNew):
     #insert new axis
     distPoints = np.expand_dims(distPoints, axis=1)
     #undistort them, squeeze gets rid of axis of length one
-    res = np.squeeze(cv2.fisheye.undistortPoints(distPoints, K, d))
+    if FISHEYE:
+        res = np.squeeze(cv2.fisheye.undistortPoints(distPoints, K, d))
+    else:
+        res = np.squeeze(cv2.undistortPoints(distPoints, K, d))
 
     #conver to np array
     kNew = np.asarray(inKNew)
-    fx = kNew[0,1]
+    fx = kNew[0,0]
     fy = kNew[1,1]
     cx = kNew[0,2]
     cy = kNew[1,2]
