@@ -18,6 +18,7 @@ PORT = "COM10"
 class struct(object):
     z = 10
 
+#hello 
 def main():
     cycle = 0
     try:
