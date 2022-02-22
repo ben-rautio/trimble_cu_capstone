@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 # Need nvvidconc to copy from nvmm to cpu memory, since appsink cannot read from nvmm
 #refer to this: https://forums.developer.nvidia.com/t/feeding-nv12-into-opencv2/167626
 
+#Hello
+
 def gstreamer_pipeline(
     capture_width=3264,
     capture_height=2464,
