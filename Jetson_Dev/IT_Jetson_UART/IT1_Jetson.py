@@ -9,9 +9,9 @@ import time
 from pySerialTransfer.pySerialTransfer import pySerialTransfer as txfer
 
 UPLINK_BAUD = 115200
-# PORT = "/dev/ttyTHS1"
+PORT = "/dev/ttyTHS1"
 # PORT = "/dev/ttyUSB0"
-PORT = "COM10"
+# PORT = "COM10"
 
 #Need to add formats for the commands to send the ET
 
@@ -40,6 +40,11 @@ def main():
             user_input = input("Enter a command: ")
             if user_input == "10":
                 cycle = 10
+                print("Change Duty Cycle: {}".format(cycle))
+                testStruct.z=cycle
+                changeBrightness(link, testStruct)
+            elif user_input == "0":
+                cycle = 0
                 print("Change Duty Cycle: {}".format(cycle))
                 testStruct.z=cycle
                 changeBrightness(link, testStruct)
