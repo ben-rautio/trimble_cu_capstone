@@ -63,6 +63,7 @@ void setup(){
 }
 
 void loop(){
+    Serial.println("in void");
     if(myTransfer.available())
     {
       Serial.println("Available");
@@ -74,7 +75,8 @@ void loop(){
       Serial.print(" | ");
       updated = true;
     }
-    //Serial.println("switch statements");
+    Serial.println("switch statements");
+    delay(5000);
     if(updated){
       switch(myTestStruct.z){
         case 0:
