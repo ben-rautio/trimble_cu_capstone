@@ -34,35 +34,48 @@ const char* serverChange100 = "http://192.168.4.1/change?dc=100";
 //const char* serverChange110 = "http://192.168.4.1/change?dc=110";
 const char* serverBork = "http://192.168.4.1/bork";
 const char* serverBen = "http://192.169.4.1/";
+
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
+
 SerialTransfer myTransfer;
 bool updated;
+
 struct STRUCT {
   uint32_t z;
 } typedef testStruct;
-
 testStruct myTestStruct;
-void setup(){
-  // Serial port for debugging purposes
-  Serial.begin(115200);
-  Serial1.begin(115200);
-  Serial.println();
-  Serial.println("Connecting...");
+
+void WiFiConnect() {
   WiFi.begin(ssid);
-  updated = true;
   while(WiFi.status() != WL_CONNECTED){
     delay(1000);
-    Serial.print("REEEE");
+    Serial.print(".");
   }
   Serial.print("Connected to WiFi network w/ IP: ");
   Serial.println("localIP access");
   Serial.println(WiFi.localIP());
-  myTransfer.begin(Serial1);
+  return;
+}
+
+void setup(){
+  // Serial port for debugging purposes
+  Serial.begin(115200);
+  Serial2.begin(115200);
+  Serial.println();
+  Serial.println("Connecting...");
+  WiFiConnect();
+  updated = true;
+  myTransfer.begin(Serial2);
   myTestStruct.z = 0;
 }
 
 void loop(){
+    if(WiFi.status() != WL_CONNECTED){
+      WiFi.disconnect();
+      Serial.println("Reconnecting...");
+      WiFiConnect();
+    }
     if(myTransfer.available())
     {
       Serial.println("Available");
@@ -74,7 +87,8 @@ void loop(){
       Serial.print(" | ");
       updated = true;
     }
-    //Serial.println("switch statements");
+    Serial.println("switch statements");
+    delay(5000);
     if(updated){
       switch(myTestStruct.z){
         case 0:
