@@ -46,6 +46,7 @@ def undistortPoints(points, inK, inD, inKNew):
     #same thing for distorted points
     distPoints = np.asarray(points)
     distPoints = distPoints[:, 0:2].astype('float32')
+    #distPoints = np.float32(distPoints[:, 0:2])
     #Make empty array for undistorted
     undistPoints = np.empty_like(distPoints)
     #insert new axis
@@ -54,7 +55,7 @@ def undistortPoints(points, inK, inD, inKNew):
     if FISHEYE:
         res = np.squeeze(cv2.fisheye.undistortPoints(distPoints, K, d))
     else:
-        res = np.squeeze(cv2.undistortPoints(distPoints, K, d))
+        res = np.squeeze(cv2.undistortPoints(np.float32(distPoints), np.float32(K), np.float32(d)))
 
     #conver to np array
     kNew = np.asarray(inKNew)
@@ -83,9 +84,9 @@ def undistortPoints(points, inK, inD, inKNew):
 #imgPnts: UNDISTORTED image points using fisheye calibration
 #objPnts: Marker tree coordinates
 def runPNP(objPnts, imgPnts):
-    ret,rvecs,tvecs = cv2.solvePNP(objPnts, imgPnts, np.eye(3), np.zeros(1,5))
+    ret,rvecs,tvecs = cv2.solvePnP(objPnts, imgPnts, np.eye(3), np.zeros((4,1)), flags = cv2.SOLVEPNP_IPPE)
     if ret:
-        return (rvecs, tvecs)
+        return (ret, rvecs, tvecs)
     else:
         print("error in pose estimation")
         return (-1,-1)
