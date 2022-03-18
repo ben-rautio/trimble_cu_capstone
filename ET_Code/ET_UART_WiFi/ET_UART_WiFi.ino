@@ -55,7 +55,6 @@ bool updated;
 struct STRUCT {
   uint32_t z;
 } typedef testStruct;
-
 testStruct myTestStruct;
 
 void blink(int pin)
@@ -115,15 +114,26 @@ void setup(){
   Serial.println();
   Serial.println("Connecting...");
   WiFi.begin(ssid);
-  updated = true;
   while(WiFi.status() != WL_CONNECTED){
     delay(1000);
      Serial.print("REEEE");
+    Serial.print(".");
   }
   digitalWrite(WIFI_CONNECTED, HIGH);
   Serial.print("Connected to WiFi network w/ IP: ");
   Serial.println("localIP access");
   Serial.println(WiFi.localIP());
+  return;
+}
+
+void setup(){
+  // Serial port for debugging purposes
+  Serial.begin(115200);
+  Serial2.begin(115200);
+  Serial.println();
+  Serial.println("Connecting...");
+  WiFiConnect();
+  updated = true;
   myTransfer.begin(Serial2);
   myTestStruct.z = 0;
 }
@@ -140,6 +150,11 @@ void loop(){
     wifiStatus();
 
     //check uart
+    if(WiFi.status() != WL_CONNECTED){
+      WiFi.disconnect();
+      Serial.println("Reconnecting...");
+      WiFiConnect();
+    }
     if(myTransfer.available())
     {
       //blink(REQ_UART);
@@ -153,7 +168,8 @@ void loop(){
       Serial.print(" | ");
       updated = true;
     }
-    //Serial.println("switch statements");
+    Serial.println("switch statements");
+    delay(5000);
     if(updated){
       switch(myTestStruct.z){
         case 0:
