@@ -83,8 +83,9 @@ def undistortPoints(points, inK, inD, inKNew):
 
 #imgPnts: UNDISTORTED image points using fisheye calibration
 #objPnts: Marker tree coordinates
-def runPNP(objPnts, imgPnts):
-    ret,rvecs,tvecs = cv2.solvePnP(objPnts, imgPnts, np.eye(3), np.zeros((4,1)), flags = cv2.SOLVEPNP_IPPE)
+def runPNP(objPnts, imgPnts, K, D):
+    #ret,rvecs,tvecs = cv2.solvePnP(objPnts, imgPnts, np.eye(3), np.zeros((4,1)), flags = cv2.SOLVEPNP_IPPE)
+    ret,rvecs,tvecs = cv2.solvePnP(objPnts, imgPnts, K, D, flags = cv2.SOLVEPNP_IPPE)
     if ret:
         return (ret, rvecs, tvecs)
     else:
