@@ -15,13 +15,6 @@ import matrix_util
 #projectPoints explanation
 # https://answers.opencv.org/question/96474/projectpoints-functionality-question/
 
-def draw(img, corners, imgpts):
-    corner = tuple(corners[0].ravel())
-    img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255,0,0), 5)
-    img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0,255,0), 5)
-    img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0,0,255), 5)
-    return img
-
 FISHEYE_MODEL = False
 #FISHEYE_MODEL = True
 
@@ -33,11 +26,19 @@ FILENAME = 'Arducam_Feb04_intrinsic_parameters.json'
 
 #############################################################################################
 #x,y,z in mm
+# objPts = [
+#     (0.0, 0.0, 0.0),
+#     (0.0,62.0,0.0),
+#     (170.0,62.0,0.0),
+#     (170.0,0.0,0.0)
+#     ]
+
+#trapezoid points
 objPts = [
-    (0.0, 0.0, 0.0),
-    (0.0,62.0,0.0),
-    (170.0,62.0,0.0),
-    (170.0,0.0,0.0)
+    (-499.269, 0.0, 0.0),
+    (-258.762,465.137,0.0),
+    (238.125,465.137,0.0),
+    (496.09375,0.0,0.0)
     ]
 #print("objPts: " + str(objPts))
 
