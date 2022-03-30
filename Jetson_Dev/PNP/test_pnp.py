@@ -3,7 +3,7 @@ import numpy as np
 import parse_params
 import math
 import cv2
-#import IT2_Jetson_centroids as pipeline
+import IT2_Jetson_centroids as pipeline
 import matrix_util
 
 #fisheye calibration process
@@ -57,6 +57,7 @@ def live_PNP():
     print(pipeline.gstreamer_pipeline(flip_method=2))
     cap = cv2.VideoCapture(pipeline.gstreamer_pipeline(flip_method=2), cv2.CAP_GSTREAMER)
     window_handle = cv2.namedWindow("Camera", cv2.WINDOW_NORMAL)
+    IInd_window = cv2.namedWindow("Output", cv2.WINDOW_NORMAL)
     while cap.isOpened():
         ret_val, img = cap.read()
         if ret_val:
@@ -88,19 +89,28 @@ def live_PNP():
                 ctrd.append([ctroid[0],ctroid[1]])
             centroidPts = ctrd
 
-            #fix the sorting
-            centroidPts.sort()
-            if centroidPts[0][1] < centroidPts[1][1]:
-                centroidPts[0], centroidPts[1] = centroidPts[1], centroidPts[0]
-            if centroidPts[2][1] > centroidPts[3][1]:
-                centroidPts[2], centroidPts[3] = centroidPts[3], centroidPts[2]
+            imS2 = cv2.resize(img, (1280, 720))
+
+            keyCode = cv2.waitKey(1) & 0xFF
+            if keyCode == 27:
+                print("Closing...")
+                break
+            cv2.imshow('Output',imS2)
             #############################################################################################
 
             #############################################################################################
             #then, do the following after finding centroids:
             if (len(ctrds_pnp) == 4):
+
+                #fix the sorting
+                centroidPts.sort()
+                if centroidPts[0][1] < centroidPts[1][1]:
+                    centroidPts[0], centroidPts[1] = centroidPts[1], centroidPts[0]
+                if centroidPts[2][1] > centroidPts[3][1]:
+                    centroidPts[2], centroidPts[3] = centroidPts[3], centroidPts[2]
+
                 #undistPts = pnp.undistortPoints(centroidPts, K, D, newK)
-                retval, rotVec, tVec = pnp.runPNP(objPts, centroidPts, K, D)
+                retval, rotVec, tVec = pnp.runPNP(np.float32(objPts), np.float32(centroidPts), K, D)
                 rMat, _ = cv2.Rodrigues(rotVec)
 
                 #Making the rMat into the transform format for the decomposition
@@ -129,13 +139,13 @@ def live_PNP():
                 cv2.imshow('Camera',imS)
                 if (matrix_util.isRotationMatrix(rMat)):
                     euler_angles = matrix_util.rotationMatrixToEulerAngles(rMat)
-                    print("eulerAngles: \n" + str(eulerAngles))
-                    print("Rvec: " + str(rotVec))
-                    print("Tvec: " + str(tVec))
+                    #print("eulerAngles: \n" + str(eulerAngles))
+                    #print("Rvec: " + str(rotVec))
+                    #print("Tvec: " + str(tVec))
                     print("cameraWorldPose: \n" + str(cameraWorldPose))
 
                     y_radians = euler_angles[1]
-                    print("Y rotation (RAD): " + str(y_radians))
+                    #print("Y rotation (RAD): " + str(y_radians))
                     print("Y rotation (DEG): " + str(y_radians * (180.0/math.pi)))
                 else:
                     print("INVALID ROTATION MATRIX")
@@ -184,15 +194,6 @@ def single_image_test():
         ctrd.append((ctroid[0],ctroid[1]))
     centroidPts = ctrd
 
-    #fix the sorting
-    centroidPts.sort()
-    if centroidPts[0][1] < centroidPts[1][1]:
-        centroidPts[0], centroidPts[1] = centroidPts[1], centroidPts[0]
-    if centroidPts[2][1] > centroidPts[3][1]:
-        centroidPts[2], centroidPts[3] = centroidPts[3], centroidPts[2]
-
-
-
     print("centroidPts: \n" + str(centroidPts))
     print("objPts: \n" + str(objPts))
     #############################################################################################
@@ -205,6 +206,12 @@ def single_image_test():
 
         #This is pretty frustrating now. How do We know how to order the points live?
         #need to do something more
+        #fix the sorting
+        centroidPts.sort()
+        if centroidPts[0][1] < centroidPts[1][1]:
+            centroidPts[0], centroidPts[1] = centroidPts[1], centroidPts[0]
+        if centroidPts[2][1] > centroidPts[3][1]:
+            centroidPts[2], centroidPts[3] = centroidPts[3], centroidPts[2]
 
         #print("reordered pts: \n" + str(centroidPts_sorted))
         retval, rotVec, tVec = pnp.runPNP(np.float32(objPts), np.float32(centroidPts), K, D)
@@ -281,4 +288,5 @@ def single_image_test():
     else: print("Incorrect number of moments: " + str(len(ctrds_pnp)))
 
 if __name__ == '__main__':
-    single_image_test()
+    # single_image_test()
+    live_PNP()
