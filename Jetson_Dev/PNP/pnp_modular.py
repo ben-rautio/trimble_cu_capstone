@@ -34,7 +34,7 @@ class pipeline:
         self.D = None
 
     def getCalibration(self):
-        K,D = parse_params.getCalibrationParams(FILENAME)
+        K,D = parse_params.getCalibrationParams(self.FILENAME)
         K = np.float32(K)
         D = np.float32(D)
         self.K = K
