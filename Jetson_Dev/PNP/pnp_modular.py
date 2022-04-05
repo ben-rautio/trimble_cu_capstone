@@ -147,6 +147,7 @@ if __name__ == '__main__':
 
 #end of modular code
 ##########################################################################################
+""""
 FISHEYE_MODEL = False
 #FISHEYE_MODEL = True
 
@@ -414,3 +415,5 @@ def single_image_test():
 if __name__ == '__main__':
     # single_image_test()
     live_PNP()
+
+""""
