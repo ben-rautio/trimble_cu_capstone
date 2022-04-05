@@ -21,8 +21,6 @@ class pipeline:
     def __init__(self):
         self.SCALE_FACTOR = 1.0
         self.BALANCE = 1.0
-        self.IMG_W = 3264
-        self.IMG_H = 2464
         self.FILENAME = 'Arducam_Feb04_intrinsic_parameters.json'
         self.objPts = [
                 (-499.269, 0.0, 0.0),
@@ -32,6 +30,7 @@ class pipeline:
                 ]
         self.K = None
         self.D = None
+        self.YAW = None
 
     def getCalibration(self):
         K,D = parse_params.getCalibrationParams(self.FILENAME)
@@ -72,6 +71,30 @@ class pipeline:
         num_found = len(ctrds_pnp)
         
         return centroidPts, num_found
+
+    
+    def gstreamer_pipeline(
+        capture_width=3264,
+        capture_height=2464,
+        framerate=21,
+        flip_method=2,
+    ):
+
+        return (
+            "nvarguscamerasrc ! "
+            "video/x-raw(memory:NVMM), "
+            "format=NV12, width=(int)%d, height=(int)%d, "
+            "framerate=(fraction)%d/1 ! "
+            "nvvidconv flip-method=%d ! "
+            "video/x-raw, format=GRAY8 ! appsink"
+            % (
+                capture_width,
+                capture_height,
+                framerate,
+                flip_method,
+            )
+        )
+
     
 
     def Find_Pose(self):
@@ -130,8 +153,10 @@ class pipeline:
                             print("cameraWorldPose: \n" + str(cameraWorldPose))
 
                             y_radians = euler_angles[1]
+                            y_degrees = y_radians * (180.0/math.pi)
+                            self.YAW = y_degrees
                             #print("Y rotation (RAD): " + str(y_radians))
-                            print("Y rotation (DEG): " + str(y_radians * (180.0/math.pi)))
+                            print("Y rotation (DEG): " + str(y_degrees))
                         else:
                             print("INVALID ROTATION MATRIX")
                     else: print("Incorrect number of centroids: " + str(num_found))
