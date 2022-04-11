@@ -1,10 +1,13 @@
-import pnp
 import numpy as np
 import parse_params
 import math
 import cv2
-#import IT2_Jetson_centroids as pipeline
+import pnp
 import matrix_util
+import traceback
+import pySerialTransfer as txfer
+#from pySerialTransfer.pySerialTransfer import pySerialTransfer as txfer
+
 
 #fisheye calibration process
 # https://medium.com/@kennethjiang/calibrate-fisheye-lens-using-opencv-333b05afa0b0
@@ -32,8 +35,48 @@ class pipeline:
         self.D = None
         self.YAW = None
 
-    #I can add functions for changing LED brightness and comparing to previous poses
+        #UART
+        self.cycle = 0
+        self.port = "/dev/ttyTHS1"
+        self.baud = 115200
+        self.link = txfer.SerialTransfer(self.port, self.baud)
 
+    def tryLink(self):
+        try:
+            self.link.open()
+            print('Opened port: {}'.format(self.port))
+
+            #check for errors
+            if self.link.status < 0:
+                if self.link.status == -1:
+                    print('ERROR: CRC_ERROR')
+                elif self.link.status == -2:
+                    print('ERROR: PAYLOAD_ERROR')
+                elif self.link.status == -3:
+                    print('ERROR: STOP_BYTE_ERROR')
+        except:
+            traceback.print_exc()
+            self.link.close()
+        
+
+    def setCycle(self, cycle):
+        if self.cycle <= 100 and self.cycle >= 0:
+            self.cycle = cycle 
+            #send the message 
+            send_size = 0
+            str_size = self.link.tx_obj(cycle.z)
+            send_size+=str_size
+            self.link.send(send_size)
+
+    def changeCycle(self, count):
+        if count != 4 and self.cycle <= 95:
+            cycle = self.cycle + 5
+            self.setCycle(cycle)
+        elif self.cycle == 100:
+            cycle = 10
+            self.setCycle(cycle)
+
+        
     def getCalibration(self):
         K,D = parse_params.getCalibrationParams(self.FILENAME)
         K = np.float32(K)
@@ -60,6 +103,7 @@ class pipeline:
                 cX, cY = 0, 0
         #print("Moments: " + str(len(ctrds_pnp)))
         
+        #display centroid locations
         #for ctrd in ctrds_pnp:
             #label each centroid
             #cv2.circle(img, (int(ctrd[0]), int(ctrd[1])), 1, (0, 255, 0), 8)
@@ -159,15 +203,19 @@ class pipeline:
                             self.YAW = y_degrees
                             #print("Y rotation (RAD): " + str(y_radians))
                             print("Y rotation (DEG): " + str(y_degrees))
-                        else:
-                            print("INVALID ROTATION MATRIX")
+                        else: print("INVALID ROTATION MATRIX")
                     else: print("Incorrect number of centroids: " + str(num_found))
+                else:
+                    self.changeCycle(num_found)
+
+
 
     
 
 if __name__ == '__main__':
     p = pipeline()
-    p.getCalibration()   
+    p.getCalibration() 
+    p.tryLink()  
     p.Find_Pose()        
                 
 
