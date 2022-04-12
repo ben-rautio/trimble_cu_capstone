@@ -66,7 +66,6 @@ void setup(){
       request->send_P(200, "text/plain", out.c_str());
    }
   });
-
   // Start server
   server.begin();
 }

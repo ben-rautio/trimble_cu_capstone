@@ -100,7 +100,19 @@ void wifiStatus()
   }
 }
 
+
 void setup(){
+  // Serial port for debugging purposes
+  Serial.begin(115200);
+  Serial2.begin(115200);
+  Serial.println();
+  Serial.println("Connecting...");
+  WiFiConnect();
+  updated = true;
+  myTransfer.begin(Serial2);
+  myTestStruct.z = 0;
+}
+void WiFiConnect(){
   pinMode(TX_WIFI, OUTPUT);
   pinMode(HEARTBEAT, OUTPUT);
   pinMode(REQ_UART, OUTPUT);
@@ -108,7 +120,8 @@ void setup(){
   pinMode(HB_LED, OUTPUT);
   
   digitalWrite(WIFI_CONNECTED, LOW);
-  
+  pinMode(5, OUTPUT);
+  digitalWrite(5, LOW);
   Serial.begin(115200);
   Serial2.begin(115200);
   Serial.println();
@@ -124,18 +137,6 @@ void setup(){
   Serial.println("localIP access");
   Serial.println(WiFi.localIP());
   return;
-}
-
-void setup(){
-  // Serial port for debugging purposes
-  Serial.begin(115200);
-  Serial2.begin(115200);
-  Serial.println();
-  Serial.println("Connecting...");
-  WiFiConnect();
-  updated = true;
-  myTransfer.begin(Serial2);
-  myTestStruct.z = 0;
 }
 
 void loop(){
