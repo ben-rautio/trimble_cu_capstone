@@ -1,0 +1,13 @@
+Create node for extrinsic params
+
+- have predefined message type
+- service has response and request format
+- Trimble is the client that will use service, send request to get extrinsic cals
+- The response will send back 
+- The ECU will be making a call to this service, my service will return a boolean for success or no success
+- Trimble will be sending the request with the variables we need, we save it locally, and we return true/false
+
+
+
+Maybe create service to initiate data transfer:
+- 
